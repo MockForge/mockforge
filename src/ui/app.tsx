@@ -1,12 +1,13 @@
 import { useRequest } from 'ahooks';
 import { Checkbox } from 'antd';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { MockAPI } from '../sdk/common/types';
 import { MockForgeEvent } from '../server/common/event';
 import { AddApiForm } from './component/AddApiForm';
 import { AddMockResponseButton } from './component/AddApiResponse';
 import './index.css';
 import useMockForgeStore from './model/state';
+import { EditOutlined } from '@ant-design/icons';
 
 const APICard: React.FC<{ api: MockAPI }> = (props) => {
   const mockForgeStore = useMockForgeStore();
@@ -54,6 +55,9 @@ const APICard: React.FC<{ api: MockAPI }> = (props) => {
               }}
             />
             <div className="tag-name">{o.name}</div>
+            <div>
+              <EditOutlined />
+            </div>
           </div>
         ))}
       </div>

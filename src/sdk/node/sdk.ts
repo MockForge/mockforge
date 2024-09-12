@@ -2,7 +2,13 @@ import fs from 'fs/promises';
 import path from 'path';
 import { checkDirAndFileName, decodeHttpApiPath, encodeHttpApiPath, METADATA_FILENAME } from '../common/filename.js';
 import { IMockForgeSDK } from '../common/sdk.js';
-import { AddHttpMockResponse, HttpMockResponse, MockAPI, MockAPIMetadata } from '../common/types.js';
+import {
+  AddHttpMockResponse,
+  HttpMockResponse,
+  MockAPI,
+  MockAPIMetadata,
+  UpdateHttpMockResponseSchema,
+} from '../common/types.js';
 
 export class MockForgeSDK implements IMockForgeSDK {
   constructor(private baseDir: string) {}
@@ -89,9 +95,29 @@ export class MockForgeSDK implements IMockForgeSDK {
     mockResponse: AddHttpMockResponse
   ): Promise<HttpMockResponse> {
     const mockResponsePath = this.resolveMockResponsePath(method, pathname, mockResponse.name);
-
     if (await this.exist(mockResponsePath)) {
       throw new Error(`Mock response ${mockResponse.name} already exists`);
+    }
+    const httpMockResponseToWrite: Partial<HttpMockResponse> = {
+      ...mockResponse,
+      $schema: 'https://unpkg.com/mockforge@0.2.0/json-schema/http_response_v1.json',
+    };
+    delete httpMockResponseToWrite.name;
+    await fs.writeFile(mockResponsePath, JSON.stringify(httpMockResponseToWrite, null, 2));
+    return {
+      ...mockResponse,
+      $schema: 'https://unpkg.com/mockforge@0.2.0/json-schema/http_response_v1.json',
+    };
+  }
+
+  async updateHttpMockResponse(
+    method: string,
+    pathname: string,
+    mockResponse: UpdateHttpMockResponseSchema
+  ): Promise<HttpMockResponse> {
+    const mockResponsePath = this.resolveMockResponsePath(method, pathname, mockResponse.name);
+    if (!(await this.exist(mockResponsePath))) {
+      throw new Error(`Mock response ${mockResponse.name} not exists`);
     }
     const httpMockResponseToWrite: Partial<HttpMockResponse> = {
       ...mockResponse,
