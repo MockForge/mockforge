@@ -5,17 +5,10 @@ import fetchMock from 'fetch-mock';
 
 fetchMock.config.fallbackToNetwork = true;
 export function patchFetch(mock: ISimulatedRequestHandler) {
-  console.log('patchFetch');
   return fetchMock.mock('*', (url, opts) => {
     const method = opts?.method ?? 'GET';
     const body = opts?.body;
     const headers = convertHeadersInitToRecord(opts?.headers);
-    console.log('handleSimulatedRequest', {
-      url: url,
-      method,
-      body,
-      headers: headers,
-    });
     const mockRes = mock.handleSimulatedRequest({
       url: url,
       method,
